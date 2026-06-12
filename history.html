@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Storico Viaggi</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">🛴 SMARTMOVE</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="index.html"><span>🏠</span>Home Dashboard</a></li>
+                <li class="sidebar-item active"><a href="history.html"><span>📈</span>Le mie Corse</a></li>
+                <li class="sidebar-item"><a href="pagamenti.html"><span>💳</span>Pagamenti</a></li>
+                <li class="sidebar-item"><a href="report.html"><span>🔧</span>Segnala Guasto</a></li>
+                <li class="sidebar-item"><a href="admin.html"><span>📊</span>Pannello Admin</a></li>
+                <li class="sidebar-item" style="margin-top: 50px;">
+                    <a href="login.html" onclick="logout()" style="color:#ff7675;">
+                        <span>🚪</span>Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-workspace">
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>Storico delle tue Corse Green</h1>
+                    <p>Verifica i resoconti economici e l'impatto ecologico generato dalle tue sessioni di viaggio</p>
+                </div>
+            </header>
+
+            <div class="dashboard-card">
+                <table class="desktop-table">
+                    <thead>
+                        <tr>
+                            <th>ID Transazione</th>
+                            <th>Identificativo Mezzo</th>
+                            <th>Data ed Ora Sessione</th>
+                            <th>Durata Viaggio</th>
+                            <th>Costo Addebitato</th>
+                            <th>Stato Sostenibilità</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabella-corse">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script>
+        const URL_SUPABASE = "https://izkjjerixztdvntqbkbh.supabase.co";
+        const KEY_SUPABASE = "sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE";
+        
+        const supabaseClient = supabase.createClient(
+            URL_SUPABASE,
+            KEY_SUPABASE
+        );
+        
+        async function caricaCorse() {
+        
+            const { data, error } = await supabaseClient
+                .from("corse")
+                .select("*")
+                .order("data_ora", { ascending: false });
+        
+            if (error) {
+                console.error(error);
+                return;
+            }
+        
+            const tbody = document.getElementById("tabella-corse");
+        
+            tbody.innerHTML = "";
+        
+            data.forEach(corsa => {
+        
+                const dataFormattata =
+                    new Date(corsa.data_ora).toLocaleString("it-IT");
+        
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#TR-${corsa.id}</td>
+                        <td><strong>${corsa.id_mezzo}</strong></td>
+                        <td>${dataFormattata}</td>
+                        <td>${corsa.durata_minuti} minuti</td>
+                        <td>${corsa.costo} €</td>
+                        <td>
+                            <span style="
+                                background:#eefaf4;
+                                color:green;
+                                padding:4px 8px;
+                                border-radius:4px;
+                                font-weight:bold;">
+                                🌱 Certificato Eco
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        caricaCorse();
+        </script>
+
+</body>
+</html>

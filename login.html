@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🛴</div>
+            <h2>Accedi a SMARTMOVE</h2>
+            <p style="color: var(--light-text); margin-bottom: 30px;">Inserisci le tue credenziali per accedere al pannello web</p>
+
+            <div class="form-group" style="text-align: left;">
+                <label>Indirizzo Email</label>
+                <input type="email" id="login-email">
+            </div>
+
+            <div class="form-group" style="text-align: left;">
+                <label>Password</label>
+                <input type="password" id="login-password">
+            </div>
+
+            <button class="btn-primary" style="width: 100%; padding: 12px; margin-bottom: 15px;" onclick="eseguiLogin()">ACCEDI AL WORKSPACE</button>
+            <button class="btn-primary" style="width: 100%; padding: 12px; background: #2f3542;" onclick="location.href='admin.html'">PANNELLO AMMINISTRATORE 🔑</button>
+
+            <div style="margin-top: 20px; font-size: 0.9rem; color: var(--light-text);">
+                Nuovo utente? <a href="register.html" style="color: var(--primary-color); font-weight: bold; text-decoration: none;">Registrati qui</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://izkjjerixztdvntqbkbh.supabase.co';
+        const supabaseKey = 'sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE';
+    
+        const supabaseClient = supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+        );
+        console.log("EMAIL:", email);
+        console.log("PASSWORD:", password);
+    
+        async function eseguiLogin() {
+    
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+    
+            if (!email || !password) {
+                alert("Inserisci email e password.");
+                return;
+            }
+    
+            const { data, error } =
+                await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+    
+            console.log("DATA:", data);
+            console.log("ERROR:", error);
+    
+            if (error) {
+                alert("Credenziali non valide: " + error.message);
+                return;
+            }
+    
+            alert("Accesso effettuato con successo!");
+    
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

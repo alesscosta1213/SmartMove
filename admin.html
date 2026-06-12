@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Amministrazione</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">🛴 SMARTMOVE ADMIN</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="index.html"><span>🏠</span>Interfaccia Utente</a></li>
+                <li class="sidebar-item active"><a href="admin.html"><span>📊</span>Pannello Admin</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-workspace">
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>Dashboard di Monitoraggio Flotta Universitaria/Comunale</h1>
+                    <p>KPI globali aggregati relativi al sistema di mobilità integrata SmartMove</p>
+                </div>
+            </header>
+
+            <div class="cards-grid" style="margin-bottom: 40px;">
+                <div class="dashboard-card" style="border-left: 5px solid var(--primary-color);">
+                    <p style="font-size: 0.85rem; font-weight: bold; color: var(--light-text);">VEICOLI ATTIVI IN RETE</p>
+                    <h2>128 Mezzi</h2>
+                </div>
+                <div class="dashboard-card" style="border-left: 5px solid #3498db;">
+                    <p style="font-size: 0.85rem; font-weight: bold; color: var(--light-text);">UTENTI REGISTRATI (DB)</p>
+                    <h2>2 Account</h2>
+                </div>
+                <div class="dashboard-card" style="border-left: 5px solid var(--danger-color);">
+                    <p style="font-size: 0.85rem; font-weight: bold; color: var(--light-text);">TICKET APERTI DA REPORT</p>
+                    <h2>3 Richieste</h2>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-title">🔧 Coda Gestione Interventi Tecnici</div>
+                <table class="desktop-table">
+                    <thead>
+                        <tr>
+                            <th>ID Ticket</th>
+                            <th>Veicolo</th>
+                            <th>Anomalia</th>
+                            <th>Stato Avanzamento</th>
+                            <th>Data Apertura</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabella-ticket">
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script>
+        const URL_SUPABASE = "https://izkjjerixztdvntqbkbh.supabase.co";
+        const KEY_SUPABASE = "sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE";
+        
+        const supabaseClient = supabase.createClient(
+            URL_SUPABASE,
+            KEY_SUPABASE
+        );
+        
+        async function caricaTicket() {
+        
+            const { data, error } = await supabaseClient
+                .from("manutenzione")
+                .select("*")
+                .order("data_creazione", { ascending: false });
+        
+            if (error) {
+                console.error(error);
+                alert(error.message);
+                return;
+            }
+        
+            const tbody = document.getElementById("tabella-ticket");
+            tbody.innerHTML = "";
+        
+            data.forEach(ticket => {
+        
+                const dataFormattata =
+                    new Date(ticket.data_creazione)
+                    .toLocaleString("it-IT");
+        
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${ticket.id}</td>
+                        <td>${ticket.id_mezzo}</td>
+                        <td>${ticket.componente}</td>
+                        <td>
+                            <span style="
+                                background:#fff5f5;
+                                color:#d63031;
+                                padding:4px 8px;
+                                border-radius:4px;
+                                font-weight:bold;
+                                font-size:0.8rem;
+                            ">
+                                ${ticket.stato}
+                            </span>
+                        </td>
+                        <td>${dataFormattata}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        caricaTicket();
+        </script>
+
+</body>
+</html>

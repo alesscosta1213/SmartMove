@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Dashboard Utente</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-logo">🛴 SMARTMOVE</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="index.html"><span>🏠</span>Home Dashboard</a></li>
+                <li class="sidebar-item"><a href="history.html"><span>📈</span>Le mie Corse</a></li>
+                <li class="sidebar-item"><a href="pagamenti.html"><span>💳</span>Pagamenti</a></li>
+                <li class="sidebar-item"><a href="report.html"><span>🔧</span>Segnala Guasto</a></li>
+                <li class="sidebar-item"><a href="admin.html"><span>📊</span>Pannello Admin</a></li>
+                <li class="sidebar-item" style="margin-top: 50px;">
+                    <a href="login.html" onclick="logout()" style="color:#ff7675;">
+                        <span>🚪</span>Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-workspace">
+            
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>Benvenuto nel Centro di Controllo Mobility</h1>
+                    <p>Gestisci, prenota e visualizza i mezzi attivi nel Comune</p>
+                </div>
+                <div style="font-weight: 600; background: white; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    👤 utente@uniba.it
+                </div>
+            </header>
+
+            <div class="desktop-grid">
+                
+                <div class="dashboard-card">
+                    <div class="card-title" style="margin-bottom: 15px;">
+                        <span>🗺️ Localizzazione della Flotta Real-Time</span>
+                        <span style="font-size: 0.8rem; color: var(--primary-dark); font-weight: bold;">● Connessione GPS attiva</span>
+                    </div>
+                    <div id="map" style="height: 450px; border-radius: var(--border-radius); box-shadow: inset 0 0 10px rgba(0,0,0,0.05);"></div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="dashboard-card" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white;">
+                        <h3>Il tuo Wallet Green</h3>
+                        <p style="font-size: 2rem; font-weight: bold; margin: 15px 0;">24,50 €</p>
+                        <p style="font-size: 0.85rem; opacity: 0.9;">🌱 Hai evitato l'emissione di 14kg di CO₂ questo mese.</p>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-title">⚙️ Link Rapidi</div>
+                        <button class="btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="location.href='history.html'">Vedi Registro Corse</button>
+                        <button class="btn-primary" style="width: 100%; background: #2f3542;" onclick="location.href='report.html'">Invia Segnalazione Tecnica</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <h2 style="margin-bottom: 15px; font-size: 1.3rem;">Veicoli pronti al prelievo nelle vicinanze</h2>
+            <div class="cards-grid">
+                
+                <div class="dashboard-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <span style="font-size: 1.5rem;">🛴</span>
+                            <h4 style="margin-top: 10px;">Monopattino #4521</h4>
+                            <p style="font-size: 0.8rem; color: var(--light-text); margin-top: 4px;">Via Roma (Centro)</p>
+                        </div>
+                        <span style="color: var(--primary-color); font-weight: bold; font-size: 0.85rem;">🔋 80%</span>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem; font-weight: 600;">Tariffa: 0,25€/min</span>
+                        <button class="btn-primary" onclick="location.href='unlock.html'">Avvia Viaggio</button>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <span style="font-size: 1.5rem;">🚲</span>
+                            <h4 style="margin-top: 10px;">Bicicletta #102</h4>
+                            <p style="font-size: 0.8rem; color: var(--light-text); margin-top: 4px;">Piazza Dante (UniBa)</p>
+                        </div>
+                        <span style="color: var(--primary-color); font-weight: bold; font-size: 0.85rem;">🔋 90%</span>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem; font-weight: 600;">Tariffa: 0,20€/min</span>
+                        <button class="btn-primary" onclick="location.href='unlock.html'">Avvia Viaggio</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Inizializza la mappa geografica puntando sul Campus Universitario di Bari
+        const map = L.map('map').setView([41.1098, 16.8812], 15);
+
+        // Carica i tasselli grafici (tiles) gratuiti di OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Creazione Segnalino GPS 1 (Monopattino #4521)
+        const monopattino1 = L.marker([41.1115, 16.8795]).addTo(map)
+            .bindPopup('<b>Monopattino #4521</b><br>Autonomia: 80%<br><br><button class="btn-primary" style="padding:5px 10px; font-size:0.75rem; width:100%;" onclick="location.href=\'unlock.html\'">Sblocca Mezzo 🔓</button>');
+
+        // Creazione Segnalino GPS 2 (Bicicletta #102)
+        const bicicletta1 = L.marker([41.1082, 16.8835]).addTo(map)
+            .bindPopup('<b>Bicicletta Elettrica #102</b><br>Autonomia: 90%<br><br><button class="btn-primary" style="padding:5px 10px; font-size:0.75rem; width:100%;" onclick="location.href=\'unlock.html\'">Sblocca Mezzo 🔓</button>');
+    </script>
+
+</body>
+</html>

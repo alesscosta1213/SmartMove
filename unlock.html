@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Sessione Attiva</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-logo">🛴 SMARTMOVE</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active"><a href="index.html"><span>🏠</span>Home Dashboard</a></li>
+                <li class="sidebar-item"><a href="history.html"><span>📈</span>Le mie Corse</a></li>
+                <li class="sidebar-item"><a href="report.html"><span>🔧</span>Segnala Guasto</a></li>
+                <li class="sidebar-item"><a href="admin.html"><span>📊</span>Pannello Admin</a></li>
+                <li class="sidebar-item" style="margin-top: 50px;">
+                    <a href="login.html" onclick="logout()" style="color:#ff7675;">
+                        <span>🚪</span>Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-workspace" style="background: #1e2229; color: white;">
+            
+            <header class="top-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+                <div class="page-title">
+                    <h1 style="color: white;">🛰️ TELEMETRIA DI MARCIA IN TEMPO REALE</h1>
+                    <p style="color: #a4b0be;">Sessione utente collegata al modulo hardware di bordo via cloud</p>
+                </div>
+                <div style="background: var(--primary-color); padding: 10px 25px; border-radius: 8px; font-weight: bold;" id="live-time">
+                    00:00
+                </div>
+            </header>
+
+            <div class="desktop-grid" style="grid-template-columns: 1fr 1fr; margin-top: 4px;">
+                
+                <div class="dashboard-card" style="background: rgba(255,255,255,0.05); border: none; color: white; text-align: center; padding: 40px;">
+                    <h2>Monopattino Elettrico #4521</h2>
+                    <div style="font-size: 5rem; font-weight: bold; color: var(--primary-color); margin: 30px 0;">
+                        <span id="speed">18</span> <span style="font-size: 1.5rem; color: #b2bec3;">km/h</span>
+                    </div>
+                    <p style="color: #b2bec3;">Velocità del veicolo trasmessa dall'accelerometro IoT</p>
+                </div>
+
+                <div class="dashboard-card" style="background: rgba(255,255,255,0.05); border: none; color: white; display: flex; flex-direction: column; justify-content: space-between;">
+                    <h3>Metriche Finanziarie & Green</h3>
+                    
+                    <div style="margin: 20px 0;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:1.1rem;">
+                            <span>Importo Maturato:</span>
+                            <strong style="color: var(--primary-color);" id="live-cost">0,25 €</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                            <span>Livello Batteria Residuo:</span>
+                            <span style="color: var(--warning-color);">🔋 78%</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>Stima CO₂ Risparmiata rispetto ad auto:</span>
+                            <span style="color: #81ecec; font-weight: bold;">🌱 0.12 kg</span>
+                        </div>
+                    </div>
+
+                    <button onclick="terminaCorsa()" class="btn-danger" style="width: 100%; font-size: 1.1rem;">
+                        🛑 TERMINA VIAGGIO E SALDA IMPORTO
+                    </button>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+ 
+
+    <script>
+        const URL_SUPABASE = "https://izkjjerixztdvntqbkbh.supabase.co";
+        const KEY_SUPABASE = "sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE";
+
+        const supabaseClient = supabase.createClient(
+        URL_SUPABASE,
+        KEY_SUPABASE
+);
+        let secondi = 0; let minuti = 0; const costoAlMinuto = 0.25;
+        setInterval(() => {
+            secondi++;
+            if(secondi == 60) { minuti++; secondi = 0; }
+            let sStr = secondi < 10 ? "0" + secondi : secondi;
+            let mStr = minuti < 10 ? "0" + minuti : minuti;
+            document.getElementById("live-time").innerText = mStr + ":" + sStr;
+
+            let costoTotale = 0.25 + (minuti * costoAlMinuto) + ((secondi / 60) * costoAlMinuto);
+            document.getElementById("live-cost").innerText = costoTotale.toFixed(2) + " €";
+
+            let randomSpeed = Math.floor(Math.random() * (22 - 15 + 1)) + 15;
+            document.getElementById("speed").innerText = randomSpeed;
+        }, 1000);
+
+        
+        async function terminaCorsa() {
+
+const { data: userData, error: userError } =
+    await supabaseClient.auth.getUser();
+
+console.log("USER:", userData);
+console.log("USER ERROR:", userError);
+
+if (!userData.user) {
+    alert("Utente non autenticato. Effettua di nuovo il login.");
+    return;
+}
+
+const costo = parseFloat(
+    document.getElementById("live-cost")
+        .innerText
+        .replace("€", "")
+        .replace(",", ".")
+        .trim()
+);
+
+const durata = minuti;
+const co2 = parseFloat((durata * 0.10).toFixed(2));
+
+const { data, error } = await supabaseClient
+    .from("corse")
+    .insert([
+        {
+            id_utente: userData.user.id,
+            id_mezzo: "#4521",
+            durata_minuti: durata,
+            costo: costo,
+            co2_risparmiata: co2
+        }
+    ]);
+
+console.log("INSERT DATA:", data);
+console.log("INSERT ERROR:", error);
+
+if (error) {
+    alert("Errore database: " + error.message);
+    return;
+}
+
+alert("Corsa salvata nel database!");
+window.location.href = "history.html";
+}
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Registrazione</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🌱</div>
+            <h2>Crea il tuo Account</h2>
+            <p style="color: var(--light-text); margin-bottom: 30px;">Unisciti alla mobilità intelligente desktop di SMARTMOVE</p>
+
+            <form onsubmit="event.preventDefault(); registraUtente();">
+                <div class="form-group" style="text-align: left;">
+                    <label for="name">Nome Completo</label>
+                    <input type="text" id="name" placeholder="Mario Rossi" required>
+                </div>
+
+                <div class="form-group" style="text-align: left;">
+                    <label for="reg-email">Indirizzo Email</label>
+                    <input type="email" id="reg-email" placeholder="m.rossi@studenti.uniba.it" required>
+                </div>
+
+                <div class="form-group" style="text-align: left;">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" placeholder="Minimo 8 caratteri" required>
+                </div>
+
+                <div style="text-align: left; margin-bottom: 25px; font-size: 0.85rem; color: #747d8c;">
+                    <input type="checkbox" id="terms" required style="margin-right: 8px;">
+                    <label for="terms">Accetto i termini di servizio e dichiaro di avere +18 anni.</label>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;">Completa Registrazione</button>
+            </form>
+
+            <div style="margin-top: 20px; font-size: 0.9rem; color: var(--light-text);">
+                Hai già un account? <a href="login.html" style="color: var(--primary-color); font-weight: bold; text-decoration: none;">Accedi</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://izkjjerixztdvntqbkbh.supabase.co';
+        const supabaseKey = 'sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE';
+        const supabaseClient = supabase.createClient(
+    supabaseUrl,
+    supabaseKey
+);
+        
+async function registraUtente() {
+
+const nome = document.getElementById('name').value;
+const email = document.getElementById('reg-email').value;
+const password = document.getElementById('reg-password').value;
+
+const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+});
+
+if (error) {
+    alert("Errore durante la registrazione: " + error.message);
+    return;
+}
+
+// Salva anche nella tabella utenti
+await supabaseClient
+    .from("utenti")
+    .insert([
+        {
+            id: data.user.id,
+            nome: nome,
+            email: email
+        }
+    ]);
+
+alert("Registrazione completata!");
+window.location.href = "login.html";
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Mappa Interattiva</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="fullscreen-map-container">
+        <div class="top-map-bar">
+            <a href="index.html" class="back-home-link">◀ Indietro</a>
+            <input type="text" value="Cerca mezzi o indirizzi...">
+            <span>🔍</span>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="floating-detail-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                    <h3 style="color: var(--dark-text);">🛴 Monopattino Elettrico</h3>
+                    <p style="color: #747d8c; font-size: 0.9rem;">Via Garibaldi, 10</p>
+                </div>
+                <span style="font-weight: bold; color: var(--dark-green);">0,25 €/min</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <span style="color: var(--dark-green); font-weight: bold;">🔋 75% di Batteria</span>
+                <button class="prenota-btn" onclick="alert('Mezzo prenotato con successo! Hai 15 minuti per sbloccarlo.')">Conferma Prenotazione</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Configura la mappa a schermo intero
+        var map = L.map('map').setView([41.1192, 16.8680], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Aggiungiamo i pin dei mezzi sulla mappa (Biciclette e Monopattini disposti nei dintorni)
+        var m1 = L.marker([41.1195, 16.8690]).addTo(map).bindPopup("<b>Monopattino #4521</b><br>Batteria: 75%");
+        var m2 = L.marker([41.1160, 16.8650]).addTo(map).bindPopup("<b>Bicicletta Elettrica #102</b><br>Batteria: 90%");
+        var m3 = L.marker([41.1210, 16.8710]).addTo(map).bindPopup("<b>Monopattino #1192</b><br>Batteria: 60%");
+
+        // Evento di interazione: quando l'utente clicca sulla mappa riceve informazioni dinamiche
+        map.on('click', function(e) {
+            console.log("Coordinate cliccate: " + e.latlng.toString());
+        });
+    </script>
+</body>
+</html>

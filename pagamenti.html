@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMove - Pagamenti</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">🛴 SMARTMOVE</div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="index.html">🏠 Dashboard</a></li>
+            <li class="sidebar-item"><a href="history.html">📈 Corse</a></li>
+            <li class="sidebar-item active"><a href="pagamenti.html">💳 Pagamenti</a></li>
+            <li class="sidebar-item"><a href="report.html">🔧 Segnalazioni</a></li>
+            <li class="sidebar-item"><a href="admin.html">📊 Admin</a></li>
+            <li class="sidebar-item" style="margin-top: 50px;">
+                <a href="login.html" onclick="logout()" style="color:#ff7675;">
+                    <span>🚪</span>Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-workspace">
+
+        <header class="top-header">
+            <div class="page-title">
+                <h1>Gestione Pagamenti</h1>
+                <p>Visualizza e registra i pagamenti effettuati</p>
+            </div>
+        </header>
+
+        <div class="dashboard-card" style="margin-bottom:30px;">
+
+            <div class="card-title">
+                💳 Nuovo Pagamento
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Importo (€)</label>
+                    <input type="number" id="importo" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label>Metodo di Pagamento</label>
+
+                    <select id="metodo">
+                        <option value="Carta">Carta</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Apple Pay">Apple Pay</option>
+                        <option value="Google Pay">Google Pay</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button class="btn-primary" onclick="effettuaPagamento()">
+                EFFETTUA PAGAMENTO
+            </button>
+
+        </div>
+
+        <div class="dashboard-card">
+
+            <div class="card-title">
+                📄 Storico Pagamenti
+            </div>
+
+            <table class="desktop-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Importo</th>
+                        <th>Metodo</th>
+                        <th>Stato</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabella-pagamenti">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const URL_SUPABASE =
+"https://izkjjerixztdvntqbkbh.supabase.co";
+
+const KEY_SUPABASE =
+"sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE";
+
+const supabaseClient =
+supabase.createClient(
+    URL_SUPABASE,
+    KEY_SUPABASE
+);
+
+async function effettuaPagamento() {
+
+    const importo =
+    parseFloat(
+        document.getElementById("importo").value
+    );
+
+    const metodo =
+    document.getElementById("metodo").value;
+
+    if(!importo || importo <= 0) {
+
+        alert("Inserisci un importo valido");
+        return;
+    }
+
+    const { error } =
+    await supabaseClient
+    .from("pagamenti")
+    .insert([
+        {
+            importo: importo,
+            metodo: metodo,
+            stato: "Pagato"
+        }
+    ]);
+
+    if(error) {
+
+        alert(error.message);
+        return;
+    }
+
+    alert("Pagamento registrato!");
+
+    document.getElementById("importo").value = "";
+
+    caricaPagamenti();
+}
+
+async function caricaPagamenti() {
+
+    const { data, error } =
+    await supabaseClient
+    .from("pagamenti")
+    .select("*")
+    .order("data_pagamento",
+        { ascending:false });
+
+    if(error) {
+
+        console.error(error);
+        return;
+    }
+
+    const tbody =
+    document.getElementById(
+        "tabella-pagamenti"
+    );
+
+    tbody.innerHTML = "";
+
+    data.forEach(p => {
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${p.id}</td>
+            <td>${p.importo} €</td>
+            <td>${p.metodo}</td>
+            <td>${p.stato}</td>
+            <td>${new Date(
+                p.data_pagamento
+            ).toLocaleString("it-IT")}</td>
+        </tr>
+        `;
+    });
+}
+
+caricaPagamenti();
+
+</script>
+
+</body>
+</html>
+```

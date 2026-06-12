@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SmartMove - Segnala Anomalia</title>
+        <link rel="stylesheet" href="style.css">
+        
+        <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+        <script>
+            console.log("Supabase caricato:", supabase);
+            </script>
+    </head>
+<body>
+
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-logo">🛴 SMARTMOVE</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="index.html"><span>🏠</span>Home Dashboard</a></li>
+                <li class="sidebar-item"><a href="history.html"><span>📈</span>Le mie Corse</a></li>
+                <li class="sidebar-item"><a href="pagamenti.html"><span>💳</span>Pagamenti</a></li>
+                <li class="sidebar-item"><a href="report.html"><span>🔧</span>Segnala Guasto</a></li>
+                <li class="sidebar-item"><a href="admin.html"><span>📊</span>Pannello Admin</a></li>
+                <li class="sidebar-item" style="margin-top: 50px;">
+                    <a href="login.html" onclick="logout()" style="color:#ff7675;">
+                        <span>🚪</span>Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-workspace">
+            <header class="top-header">
+                <div class="page-title">
+                    <h1>Segnalazione Guasti e Manutenzione</h1>
+                    <p>Invia una notifica al reparto tecnico per escludere il mezzo malfunzionante dalla flotta cittadina</p>
+                </div>
+            </header>
+
+            <div class="dashboard-card" style="max-width: 800px;">
+                <div class="card-title" style="color: var(--danger-color);">🔧 Apertura Ticket Assistenza</div>
+                
+                <form onsubmit="event.preventDefault(); inviaSegnalazione();">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicle-id">ID Mezzo Coinvolto</label>
+                            <input type="text" id="vehicle-id" placeholder="Es. #4521" value="#4521" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="issue-type">Componente Danneggiato</label>
+                            <select id="issue-type" required>
+                                <option value="freni">Impianto frenante usurato</option>
+                                <option value="batteria">Anomalia Accumulatore/Batteria</option>
+                                <option value="ruote">Pneumatico forato</option>
+                                <option value="altro">Altro difetto strutturale</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="issue-desc">Descrizione dettagliata dell'anomalia</label>
+                        <textarea id="issue-desc" rows="6" placeholder="Fornisci indicazioni precise per agevolare il team di recupero..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="background: var(--danger-color);">TRASMETTI TICKET AL REPARTO TECNICO</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function inviaSegnalazione() {
+            
+            // 1. Recupero dei dati dal form HTML
+            const idMezzo = document.getElementById("vehicle-id").value;
+            const componente = document.getElementById("issue-type").value;
+            const descrizione = document.getElementById("issue-desc").value;
+            console.log("=== DATI DEL FORM ===");
+            console.log("ID Mezzo:", idMezzo);
+            console.log("Componente:", componente);
+            console.log("Descrizione:", descrizione);
+
+            // 2. Credenziali del tuo progetto Supabase
+            const URL_SUPABASE = 'https://izkjjerixztdvntqbkbh.supabase.co';
+            const KEY_SUPABASE = 'sb_publishable_8OTh-z74zNGfUJD0Af5KgA_MtwiylbE';
+            
+            // 3. Inizializzazione del client sfruttando la libreria caricata nell'head
+            const supabaseClient = supabase.createClient(
+                URL_SUPABASE,
+                KEY_SUPABASE
+            );
+
+            try {
+                console.log("Invio dati al database in corso...");
+
+                // 4. Inserimento nella tabella
+                const { data, error } = await supabaseClient
+                    .from('manutenzione')
+                    .insert([
+                        { 
+                            id_mezzo: idMezzo, 
+                            componente: componente, 
+                            descrizione: descrizione 
+                        }
+                    ]);
+                console.log("DATA:", data);
+                console.log("ERROR:", error);
+
+                if (error) {
+                    alert("Errore database: " + error.message);
+                } else {
+                    alert("Ticket salvato con successo nel Cloud di Supabase!");
+                    window.location.href = "index.html";
+                }
+
+            } catch (err) {
+                alert("Errore imprevisto: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
