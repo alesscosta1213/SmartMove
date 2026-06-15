@@ -224,7 +224,7 @@ Permette di monitorare:
 
 ## 👨‍💻 Autore
 
-**Alessandro Costa**
+**Alessandro Costantino, Christian Della Bona, Alessandro Lucchesi Bicchielli, Lorenzo Presiccio**
 
 Progetto sviluppato per finalità didattiche nell'ambito del corso:
 
